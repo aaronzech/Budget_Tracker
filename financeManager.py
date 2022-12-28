@@ -3,7 +3,7 @@ from unicodedata import category
 import gspread
 import time
 
-MONTH = 'nov'
+MONTH = 'dec'
 file = f"amex_{MONTH}.csv"
 chaseFile = f"chase_{MONTH}.csv"
 capitalOneFile = f"capitalOne_{MONTH}.csv"
@@ -12,8 +12,8 @@ transactions = []
 
 BILL_NAMES = {"ABODE HOME SECURITY",'AMANDA WANNARKA     COON RAPIDS         MN','TMOBILE*AUTO PAY    800-937-8997        WA','COMCAST ST PAUL CS 1(800)266-2278       MN','MEMBERSHIP FEE',"MIDWEST RADIOLOGY PAROSEVILLE           MN","MINNEAPOLIS RADIOLOGPLYMOUTH            MN",
                 "NORTH MEMORIAL HEALTROBBINSDALE         MN","THE URGENCY ROOM 00-BLOOMINGTON         MN","JEWELERS-MUTUAL-PMNT800-558-6411        WI"}
-FOOD_NAMES = {"CUB FOODS 0000000001BLAINE              MN",'CUB FOODS #1598 0000BLAINE              MN','ALDI 72108 000000000BLAINE              MN',"ALDI 72016 000000000BLAINE              MN","ALDI                BLAINE              MN","GglPay CUB FOODS #15BLAINE              MN"}
-EATING_OUT_NAMES = {"MCDONALD'S 6359     OAKDALE             MN","DONATELLI'S RESTAURAWHITE BEAR LA       MN","WHITE CASTLE  080034BLAINE              MN","GglPay PANERA BREAD 612-656-6147        MN","CHICK-FIL-A #04341 0WOODBURY            MN","PAPA JOHN'S #1722 00BLAINE              MN","ARBYS #7475 BLAINE 0BLAINE              MN","TACO BELL #734948 73BLAINE              MN","DAVANNI'S #17 - COONCOON RAPIDS         MN","DOMINO'S PIZZA      BLAINE              MN","LITTLE CAESARS 3505-651-332-700         MN","DAIRY QUEEN #14832 0BLAINE              MN","LITTLE CAESARS 3505-651-332-700         MN",
+FOOD_NAMES = {"BURGER KING         WOODBURY            MN","CUB FOODS 0000000001BLAINE              MN",'CUB FOODS #1598 0000BLAINE              MN','ALDI 72108 000000000BLAINE              MN',"ALDI 72016 000000000BLAINE              MN","ALDI                BLAINE              MN","GglPay CUB FOODS #15BLAINE              MN"}
+EATING_OUT_NAMES = {"MCDONALD'S 5148     COON RAPIDS         MN","POPEYES 13929 0000  BLAINE              MN","KEYS CAFE WOODBURY 9WOODBURY            MN","TST* ACAPULCO MEXICABLAINE              MN","WENDY S 431 00000043SHOREVIEW           MN","MCDONALD'S 6359     OAKDALE             MN","DONATELLI'S RESTAURAWHITE BEAR LA       MN","WHITE CASTLE  080034BLAINE              MN","GglPay PANERA BREAD 612-656-6147        MN","CHICK-FIL-A #04341 0WOODBURY            MN","PAPA JOHN'S #1722 00BLAINE              MN","ARBYS #7475 BLAINE 0BLAINE              MN","TACO BELL #734948 73BLAINE              MN","DAVANNI'S #17 - COONCOON RAPIDS         MN","DOMINO'S PIZZA      BLAINE              MN","LITTLE CAESARS 3505-651-332-700         MN","DAIRY QUEEN #14832 0BLAINE              MN","LITTLE CAESARS 3505-651-332-700         MN",
                     "CRISP & GREEN - GC  6122089240          MN","PP*CORENUTRITI      BLAINE              MN","GglPay CRISP & GREENBLAINE              MN","PIZZA HUT 039460 000WOODBURY            MN"}
 SHOPPING_NAMES = {"COSTCO WHSE #1021",'WAL-MART SUPERCENTERBLAINE              MN','WAL-MART 3498 3498  BLAINE              MN',"WAL-MART SUPERCENTERVADNAIS HEIGHTS     MN","GglPay TARGET       BLAINE              MN","GglPay WALGREENS #72BLAINE              MN","GglPay TARGET       BLAINE              MN","GglPay CVS/PHARMACY BLAINE              MN",
                         }
@@ -22,9 +22,9 @@ WANT_NAMES = {"TICKETMASTER","AplPay APPLE.COM/BILINTERNET CHARGE     CA",'COFFE
 IGNORE_NAMES = {'Withdrawal from CHASE CREDIT CRD EPAY','Withdrawal from AMEX EPAYMENT ACH PMT','ONLINE PAYMENT - THANK YOU','MOBILE PAYMENT - THANK YOU',"Payment Thank You-Mobile","CAPITAL ONE MOBILE PYMT","CREDIT-CASH BACK REWARD"}
 PET_NAMES = {"BLAINE AREA PET HOSPITAL","BLAINE AREA PET HOSPBLAINE              MN","CHEWY.COM           (800)672-4399       FL"}
 ENTERTAINMENT_NAMES = {"DISNEY PLUS         BURBANK             CA","SPOTIFY USA         NEW YORK            NY","HBO MAX             NEW YORK            NY","HLU*HULU 10985931514HULU.COM/BILL       CA","GglPay AMC ONLINE 96LEAWOOD             KS","AEN* LIFETIMEMOVIECLNEW YORK CITY       NY"}
-GAS_NAMES = {"HOLIDAY STATIONSTOREWOODBURY            MN","KWIK TRIP  925009258BLAINE              MN","HOLIDAY STATIONS 041BLAINE              MN"}
+GAS_NAMES = {"KWIK TRIP  102010223BLAINE              MN","HOLIDAY STATIONSTOREWOODBURY            MN","KWIK TRIP  925009258BLAINE              MN","HOLIDAY STATIONS 041BLAINE              MN"}
 HOME_NAMES = {"THE HOME DEPOT      BLAINE              MN","LOWE'S OF BLAINE, MNBLAINE              MN","MENARDS BLAINE MN 00BLAINE              MN"}
-VACATION_NAMES = {"MAC PARKING RESERVATSAINT PAUL          MN","WDW DINING RESV     LAKE BUENA VI       FL"}
+VACATION_NAMES = {"MAC PARKING RESERVATSAINT PAUL          MN","WDW DINING RESV     LAKE BUENA VI       FL","BLAINE KENNELS      BLAINE              MN","HERTZ CAR RENTAL"}
 
 sum = 0
 
@@ -275,6 +275,7 @@ def quickSilver(quickSilverFile,BILL_NAMES,FOOD_NAMES,EATING_OUT_NAMES,SHOPPING_
         return transactions
 
 
+# Format the Sheet to include Category Totals
 def categorySums(worksheet):
     worksheet.update_acell('H2','=SUMIF(D:D,"Bills",A:A)')
     worksheet.update_acell('G2','Bills')
@@ -295,8 +296,15 @@ def categorySums(worksheet):
     worksheet.update_acell('H10','=SUMIF(D:D,"Deposit",A:A)')
     worksheet.update_acell('G10','Deposits')
     worksheet.update_acell('H11','=SUMIF(D:D,"unlabled",A:A)')
-    worksheet.update_acell('G11','Unlabled')   
-
+    worksheet.update_acell('G11','Unlabled')
+    worksheet.update_acell('H12','=SUMIF(D:D,"gas",A:A)')
+    worksheet.update_acell('G12','Gas')    
+    worksheet.update_acell('H13','=SUMIF(D:D,"health",A:A)')
+    worksheet.update_acell('G13','Health')   
+    worksheet.update_acell('H14','=SUMIF(D:D,"gifts",A:A)')
+    worksheet.update_acell('G14','Gifts')
+    worksheet.update_acell('H15','=SUMIF(D:D,"wants",A:A)')
+    worksheet.update_acell('G15','Wants')      
 
 gc = gspread.service_account(filename='C:\\Users\\Aaron\\OneDrive\\FinanceManager\\service_account.json');
 #gc = gspread.service_account() # Default location %AppDat% Roaming Gspread
@@ -307,6 +315,7 @@ sh = sa.open("Joint Budget")
 worksheet = sh.worksheet(f"{MONTH}")
 
 
+#Build Transactions
 rows = amex(file,BILL_NAMES,FOOD_NAMES,EATING_OUT_NAMES,SHOPPING_NAMES,WANT_NAMES,IGNORE_NAMES,PET_NAMES,ENTERTAINMENT_NAMES,GAS_NAMES,HOME_NAMES,VACATION_NAMES)
 rows = chase(chaseFile,BILL_NAMES,FOOD_NAMES,EATING_OUT_NAMES,SHOPPING_NAMES,WANT_NAMES,IGNORE_NAMES,PET_NAMES,ENTERTAINMENT_NAMES,GAS_NAMES,HOME_NAMES,VACATION_NAMES)
 rows = capitalOne(capitalOneFile,BILL_NAMES,FOOD_NAMES,EATING_OUT_NAMES,SHOPPING_NAMES,WANT_NAMES,IGNORE_NAMES,PET_NAMES,ENTERTAINMENT_NAMES,GAS_NAMES,HOME_NAMES,VACATION_NAMES)
@@ -316,9 +325,13 @@ rows = quickSilver(quickSilverFile,BILL_NAMES,FOOD_NAMES,EATING_OUT_NAMES,SHOPPI
 #Insert Header Row
 worksheet.insert_row(["Amount","Card Type","Description","Category","Sub-Category","Date"],2)
 
-for row in rows:
-    worksheet.append_row([row[0],row[1],row[2],row[3],row[4],row[5]],2)
-    time.sleep(1.2) 
+
+worksheet.append_rows(rows); # Adds all in at once. Bold for some reason?
+
+# Insert Transactions into Google Sheet
+# for row in rows:
+#     worksheet.append_row([row[0],row[1],row[2],row[3],row[4],row[5]],2)
+#     time.sleep(1.2) 
 
 print("Program Complete")
 
